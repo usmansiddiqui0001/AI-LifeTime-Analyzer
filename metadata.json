@@ -1,0 +1,5 @@
+{
+  "name": "AI LifeTime Analyzer",
+  "description": "An AI-powered application that takes your name, date of birth, and country to generate a detailed and personalized report about your life, historical context, and fun predictions.",
+  "requestFramePermissions": []
+}
