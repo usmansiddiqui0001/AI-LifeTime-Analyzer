@@ -29,7 +29,11 @@ const App: React.FC = () => {
       setReport(generatedReport);
     } catch (err) {
       if (err instanceof Error) {
-        setError(err.message);
+        if (err.message.includes("API key is not configured")) {
+          setError("एप्लिकेशन को AI से जोड़ने के लिए एक ज़रूरी की (API Key) नहीं मिल रही है। यह एक कॉन्फ़िगरेशन समस्या है। अगर आप इस ऐप के डेवलपर हैं, तो कृपया सुनिश्चित करें कि API_KEY एनवायरनमेंट वेरिएबल सही से सेट किया गया है।");
+        } else {
+          setError(err.message);
+        }
       } else {
         setError('An unknown error occurred while generating the report. Please try again.');
       }
