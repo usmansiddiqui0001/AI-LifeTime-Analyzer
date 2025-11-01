@@ -28,7 +28,7 @@ const App: React.FC = () => {
       const generatedReport = await generateLifeReport(userInput);
       
       if (generatedReport === API_KEY_ERROR) {
-        setError("API Key नहीं मिली। कृपया ब्राउज़र का डेवलपर कंसोल (F12 दबाएँ) खोलकर देखें कि क्या कोई 'DEBUG' मैसेज दिख रहा है। सुनिश्चित करें कि आपने 'Secrets' टैब में API_KEY सही से डाली है और ऐप को रीस्टार्ट किया है।");
+        setError("API Key नहीं मिली। कृपया `services/geminiService.ts` फ़ाइल खोलें और अपनी API Key वहाँ दिए गए निर्देशों के अनुसार डालें, या 'Secrets' टैब में सही Key डालकर ऐप को रीस्टार्ट करें।");
       } else {
         setReport(generatedReport);
       }

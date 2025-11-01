@@ -1,6 +1,20 @@
 import { GoogleGenAI } from "@google/genai";
 import { UserInput } from '../types';
 
+// ===================================================================================
+// !!! जरूरी सूचना (IMPORTANT NOTICE) !!!
+// अगर 'Secrets' टैब काम नहीं कर रहा है, तो अपनी API Key यहाँ नीचे डबल कोट्स के अंदर पेस्ट करें।
+// If the 'Secrets' tab is not working, paste your API Key directly below inside the double quotes.
+//
+// Example: const YOUR_API_KEY = "AbCdEfGhIjKlMnOpQrStUvWxYz123456";
+// 
+// चेतावनी: यह तरीका सुरक्षित नहीं है। अपनी API Key को कभी भी पब्लिक कोड में न रखें।
+// WARNING: This is NOT a secure method. Never commit your API Key to public code.
+//
+const YOUR_API_KEY = "AIzaSyC3Qjy4vPhpQw-hLG-V0RiqP8-fU-93YzY"; 
+// ===================================================================================
+
+
 // Special string to indicate a specific configuration error
 export const API_KEY_ERROR = "ERROR_API_KEY_MISSING";
 
@@ -9,21 +23,26 @@ const generateLifeReport = async (userInput: UserInput): Promise<string> => {
     const birthDate = new Date(dob);
     const birthYear = birthDate.getFullYear();
 
+    // Determine which API key to use. Prioritize the secure environment variable.
+    const apiKey = process.env.API_KEY || (YOUR_API_KEY !== "YOUR_API_KEY_HERE" ? YOUR_API_KEY : null);
+
     // --- DEBUGGING LOG ---
-    console.log("Checking for API Key in environment secrets...");
+    console.log("Checking for API Key...");
     if (process.env.API_KEY) {
-        console.log(`API_KEY found! Key starts with: ${process.env.API_KEY.substring(0, 4)}... and ends with: ...${process.env.API_KEY.slice(-4)}`);
+        console.log("Using secure API_KEY from Secrets tab.");
+    } else if (apiKey) {
+        console.log("Using fallback API_KEY from geminiService.ts file.");
     } else {
-        console.error("DEBUG: API_KEY not found in process.env. Please ensure it is set in the 'Secrets' tab and the app has been restarted.");
+        console.error("DEBUG: API_KEY not found in Secrets tab or in the geminiService.ts file. Please provide your key in one of these locations.");
     }
     // --- END DEBUGGING LOG ---
 
     // Ensure API key is available
-    if (!process.env.API_KEY) {
+    if (!apiKey) {
         // Instead of throwing, return a special error string
         return API_KEY_ERROR;
     }
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: apiKey });
 
     const prompt = `
 You are an advanced, friendly AI assistant called “AI LifeTime Analyzer”. Your persona is a mix of an astrologer, a historian, and a wise friend. Your goal is to take a user's Name, Date of Birth, and Country as input and return a detailed, beautifully formatted, human-like report in a storytelling style.
@@ -125,6 +144,9 @@ End with a sweet, friendly line:
         console.error("Error calling Gemini API:", error);
         if (error instanceof Error) {
             // Pass a more specific error message up to the UI component
+            if (error.message.includes('API key not valid')) {
+                 throw new Error(`The provided API Key is invalid. Please check your key.`);
+            }
             throw new Error(`API Error: ${error.message}`);
         }
         throw new Error("An unknown error occurred while contacting the Gemini API.");
