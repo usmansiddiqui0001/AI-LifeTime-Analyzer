@@ -23,8 +23,6 @@ export const InputForm: React.FC<InputFormProps> = ({ userInput, setUserInput, o
     onSubmit();
   };
   
-  const today = new Date().toISOString().split('T')[0];
-
   return (
     <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
       <div className="space-y-2">
@@ -47,13 +45,13 @@ export const InputForm: React.FC<InputFormProps> = ({ userInput, setUserInput, o
           Date of Birth
         </label>
         <input
-          type="date"
+          type="text"
           id="dob"
           name="dob"
           value={userInput.dob}
           onChange={handleChange}
           required
-          max={today}
+          placeholder="YYYY-MM-DD"
           className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all appearance-none"
         />
       </div>
