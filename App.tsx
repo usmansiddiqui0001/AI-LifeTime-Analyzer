@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { generateLifeReport } from './services/geminiService';
+import { generateLifeReport, API_KEY_ERROR } from './services/geminiService';
 import { InputForm } from './components/InputForm';
 import { ReportDisplay } from './components/ReportDisplay';
 import { Loader } from './components/Loader';
@@ -26,14 +26,15 @@ const App: React.FC = () => {
 
     try {
       const generatedReport = await generateLifeReport(userInput);
-      setReport(generatedReport);
+      
+      if (generatedReport === API_KEY_ERROR) {
+        setError("API Key नहीं मिली। कृपया ब्राउज़र का डेवलपर कंसोल (F12 दबाएँ) खोलकर देखें कि क्या कोई 'DEBUG' मैसेज दिख रहा है। सुनिश्चित करें कि आपने 'Secrets' टैब में API_KEY सही से डाली है और ऐप को रीस्टार्ट किया है।");
+      } else {
+        setReport(generatedReport);
+      }
     } catch (err) {
       if (err instanceof Error) {
-        if (err.message.includes("API key is not configured")) {
-          setError("एप्लिकेशन को AI से जोड़ने के लिए एक ज़रूरी की (API Key) नहीं मिल रही है। यह एक कॉन्फ़िगरेशन समस्या है। अगर आप इस ऐप के डेवलपर हैं, तो कृपया सुनिश्चित करें कि API_KEY एनवायरनमेंट वेरिएबल सही से सेट किया गया है।");
-        } else {
-          setError(err.message);
-        }
+        setError(err.message);
       } else {
         setError('An unknown error occurred while generating the report. Please try again.');
       }

@@ -1,14 +1,27 @@
 import { GoogleGenAI } from "@google/genai";
 import { UserInput } from '../types';
 
+// Special string to indicate a specific configuration error
+export const API_KEY_ERROR = "ERROR_API_KEY_MISSING";
+
 const generateLifeReport = async (userInput: UserInput): Promise<string> => {
     const { name, dob, country } = userInput;
     const birthDate = new Date(dob);
     const birthYear = birthDate.getFullYear();
 
+    // --- DEBUGGING LOG ---
+    console.log("Checking for API Key in environment secrets...");
+    if (process.env.API_KEY) {
+        console.log(`API_KEY found! Key starts with: ${process.env.API_KEY.substring(0, 4)}... and ends with: ...${process.env.API_KEY.slice(-4)}`);
+    } else {
+        console.error("DEBUG: API_KEY not found in process.env. Please ensure it is set in the 'Secrets' tab and the app has been restarted.");
+    }
+    // --- END DEBUGGING LOG ---
+
     // Ensure API key is available
     if (!process.env.API_KEY) {
-        throw new Error("API key is not configured. Please set the API_KEY environment variable.");
+        // Instead of throwing, return a special error string
+        return API_KEY_ERROR;
     }
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
