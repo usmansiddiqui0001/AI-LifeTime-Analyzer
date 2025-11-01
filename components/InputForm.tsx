@@ -12,10 +12,24 @@ interface InputFormProps {
 
 export const InputForm: React.FC<InputFormProps> = ({ userInput, setUserInput, onSubmit, isLoading }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setUserInput({
-      ...userInput,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    // Allow only numbers and limit length for date fields
+    if (name === 'day' || name === 'month' || name === 'year') {
+        const numericValue = value.replace(/[^0-9]/g, '');
+        let maxLength = 2;
+        if (name === 'year') maxLength = 4;
+        
+        setUserInput({
+          ...userInput,
+          [name]: numericValue.slice(0, maxLength),
+        });
+    } else {
+        setUserInput({
+            ...userInput,
+            [name]: value,
+        });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -41,19 +55,47 @@ export const InputForm: React.FC<InputFormProps> = ({ userInput, setUserInput, o
         />
       </div>
       <div className="space-y-2">
-        <label htmlFor="dob" className="text-sm font-medium text-gray-300">
+        <label className="text-sm font-medium text-gray-300 block">
           Date of Birth
         </label>
-        <input
-          type="text"
-          id="dob"
-          name="dob"
-          value={userInput.dob}
-          onChange={handleChange}
-          required
-          placeholder="YYYY-MM-DD"
-          className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all appearance-none"
-        />
+        <div className="flex space-x-2">
+          <input
+            type="text"
+            inputMode="numeric"
+            name="day"
+            value={userInput.day}
+            onChange={handleChange}
+            placeholder="DD"
+            required
+            className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-2 py-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all text-center"
+            min="1"
+            max="31"
+          />
+          <input
+            type="text"
+            inputMode="numeric"
+            name="month"
+            value={userInput.month}
+            onChange={handleChange}
+            placeholder="MM"
+            required
+            className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-2 py-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all text-center"
+            min="1"
+            max="12"
+          />
+          <input
+            type="text"
+            inputMode="numeric"
+            name="year"
+            value={userInput.year}
+            onChange={handleChange}
+            placeholder="YYYY"
+            required
+            className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-2 py-2 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all text-center"
+            min="1900"
+            max={new Date().getFullYear()}
+          />
+        </div>
       </div>
       <div className="space-y-2">
         <label htmlFor="country" className="text-sm font-medium text-gray-300">

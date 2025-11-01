@@ -1,61 +1,31 @@
 import { GoogleGenAI } from "@google/genai";
 import { UserInput } from '../types';
 
-// ===================================================================================
-// !!! जरूरी सूचना (IMPORTANT NOTICE) !!!
-// अगर 'Secrets' टैब काम नहीं कर रहा है, तो अपनी API Key यहाँ नीचे डबल कोट्स के अंदर पेस्ट करें।
-// If the 'Secrets' tab is not working, paste your API Key directly below inside the double quotes.
-//
-// Example: const YOUR_API_KEY = "AbCdEfGhIjKlMnOpQrStUvWxYz123456";
-// 
-// चेतावनी: यह तरीका सुरक्षित नहीं है। अपनी API Key को कभी भी पब्लिक कोड में न रखें।
-// WARNING: This is NOT a secure method. Never commit your API Key to public code.
-//
-const YOUR_API_KEY = "AIzaSyC3Qjy4vPhpQw-hLG-V0RiqP8-fU-93YzY"; 
-// ===================================================================================
-
-
-// Special string to indicate a specific configuration error
-export const API_KEY_ERROR = "ERROR_API_KEY_MISSING";
+// Fix: Per coding guidelines, initialize GoogleGenAI with API_KEY from environment variables.
+// The API key must be obtained exclusively from process.env.API_KEY.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
 
 const generateLifeReport = async (userInput: UserInput): Promise<string> => {
-    const { name, dob, country } = userInput;
+    const { name, day, month, year, country } = userInput;
+    // Construct the date string in YYYY-MM-DD format
+    const dob = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const birthDate = new Date(dob);
     const birthYear = birthDate.getFullYear();
+    const currentDate = new Date().toISOString().slice(0, 10); // Get current date in YYYY-MM-DD format
 
-    // Determine which API key to use. Prioritize the secure environment variable.
-    const apiKey = process.env.API_KEY || (YOUR_API_KEY !== "YOUR_API_KEY_HERE" ? YOUR_API_KEY : null);
-
-    // --- DEBUGGING LOG ---
-    console.log("Checking for API Key...");
-    if (process.env.API_KEY) {
-        console.log("Using secure API_KEY from Secrets tab.");
-    } else if (apiKey) {
-        console.log("Using fallback API_KEY from geminiService.ts file.");
-    } else {
-        console.error("DEBUG: API_KEY not found in Secrets tab or in the geminiService.ts file. Please provide your key in one of these locations.");
-    }
-    // --- END DEBUGGING LOG ---
-
-    // Ensure API key is available
-    if (!apiKey) {
-        // Instead of throwing, return a special error string
-        return API_KEY_ERROR;
-    }
-    const ai = new GoogleGenAI({ apiKey: apiKey });
+    // Fix: Removed manual API key checking logic to adhere to guidelines.
+    // The `ai` instance is now initialized at the module level with the environment variable.
 
     const prompt = `
 You are an advanced, friendly AI assistant called “AI LifeTime Analyzer”. Your persona is a mix of an astrologer, a historian, and a wise friend. Your goal is to take a user's Name, Date of Birth, and Country as input and return a detailed, beautifully formatted, human-like report in a storytelling style.
 
-**Output Style Instructions:**
-- **Language:** Use Hinglish (a mix of Hindi and English) for a fun, readable, and engaging tone.
-- **Formatting:** Use Markdown for structure. Use headings (e.g., \`## 🎉 Age Summary\`), bold text, lists, and emojis extensively to make the report visually appealing and easy to read. Use small dividers like \`---\` between major sections.
-- **Tone:** Be poetic, informative, emotional, and motivational. Make it feel magical and personal.
+**VERY IMPORTANT:** All calculations must be based on the current date provided below. Do not guess the current date.
 
 **User Details:**
 - Name: ${name}
 - Date of Birth: ${dob}
 - Country: ${country}
+- **Current Date for Calculation:** ${currentDate}
 
 **Please generate the report with the following exact sections and content:**
 
@@ -64,11 +34,11 @@ You are an advanced, friendly AI assistant called “AI LifeTime Analyzer”. Yo
 ## 🧍 PERSONAL AGE REPORT
 
 ### 🎉 Age Summary
-- Calculate and display the user's exact current age in years, months, days, hours, minutes, and seconds.
-- Calculate and display the total time since birth in total days, total hours, and total seconds.
+- **Using the provided 'Current Date for Calculation' (${currentDate})**, calculate and display the user's exact current age in years, months, and days.
+- Then, calculate and display the total time since birth in total days, total hours, and total seconds.
 
 ### 📅 Next Birthday Countdown
-- Calculate and display the countdown to their next birthday in months, days, and hours.
+- **Using the provided 'Current Date for Calculation' (${currentDate})**, calculate and display the countdown to their next birthday in months, days, and hours.
 
 ### 💫 Zodiac & Lucky Details
 - Determine and state their Western Zodiac Sign.
@@ -122,7 +92,7 @@ You are an advanced, friendly AI assistant called “AI LifeTime Analyzer”. Yo
 ## 📊 FUN FACTS & STATS
 
 ### 🔢 Fun Lifetime Stats
-- Calculate the approximate number of times their heart has beaten since birth (use an average of 75 beats per minute).
+- **Using the provided 'Current Date for Calculation' (${currentDate})**, calculate the approximate number of times their heart has beaten since birth (use an average of 75 beats per minute).
 - State how many times the Earth has revolved around the Sun since their birth (this is their age in years).
 - Provide the total number of months, weeks, days, hours, minutes, and seconds they have lived.
 - Mention one interesting "Did You Know?" fact from their birth year (${birthYear}).

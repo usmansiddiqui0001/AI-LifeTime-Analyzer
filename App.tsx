@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { generateLifeReport, API_KEY_ERROR } from './services/geminiService';
+// Fix: Removed API_KEY_ERROR import as it's no longer used.
+import { generateLifeReport } from './services/geminiService';
 import { InputForm } from './components/InputForm';
 import { ReportDisplay } from './components/ReportDisplay';
 import { Loader } from './components/Loader';
@@ -8,7 +9,9 @@ import { UserInput } from './types';
 const App: React.FC = () => {
   const [userInput, setUserInput] = useState<UserInput>({
     name: '',
-    dob: '',
+    day: '',
+    month: '',
+    year: '',
     country: 'India',
   });
   const [report, setReport] = useState<string | null>(null);
@@ -16,7 +19,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleGenerateReport = useCallback(async () => {
-    if (!userInput.name || !userInput.dob || !userInput.country) {
+    if (!userInput.name || !userInput.day || !userInput.month || !userInput.year || !userInput.country) {
       setError('Please fill in all the fields.');
       return;
     }
@@ -25,13 +28,10 @@ const App: React.FC = () => {
     setReport(null);
 
     try {
+      // Fix: Simplified logic by removing special handling for API_KEY_ERROR.
+      // The generateLifeReport function now throws an error on failure, which is caught below.
       const generatedReport = await generateLifeReport(userInput);
-      
-      if (generatedReport === API_KEY_ERROR) {
-        setError("API Key नहीं मिली। कृपया `services/geminiService.ts` फ़ाइल खोलें और अपनी API Key वहाँ दिए गए निर्देशों के अनुसार डालें, या 'Secrets' टैब में सही Key डालकर ऐप को रीस्टार्ट करें।");
-      } else {
-        setReport(generatedReport);
-      }
+      setReport(generatedReport);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);

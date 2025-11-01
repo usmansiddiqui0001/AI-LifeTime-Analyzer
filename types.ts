@@ -1,6 +1,8 @@
 
 export interface UserInput {
   name: string;
-  dob: string;
+  day: string;
+  month: string;
+  year: string;
   country: string;
 }
