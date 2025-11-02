@@ -3,6 +3,7 @@ import { UserInput } from '../types';
 
 // Fix: Per coding guidelines, initialize GoogleGenAI with API_KEY from environment variables.
 // The API key must be obtained exclusively from process.env.API_KEY.
+// The UI layer now ensures this code is not called if the API_KEY is missing.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
 
 const generateLifeReport = async (userInput: UserInput): Promise<string> => {
@@ -115,7 +116,7 @@ End with a sweet, friendly line:
         if (error instanceof Error) {
             // Pass a more specific error message up to the UI component
             if (error.message.includes('API key not valid')) {
-                 throw new Error(`The provided API Key is invalid. Please check your key.`);
+                 throw new Error(`The provided API Key is invalid or missing. Please check your configuration.`);
             }
             throw new Error(`API Error: ${error.message}`);
         }
